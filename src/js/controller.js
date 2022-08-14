@@ -5,6 +5,7 @@ import {
   loadRecipe,
   loadSearchResults,
   getSearchResultsPage,
+  updateServings,
 } from './model';
 import recipeView from './views/recipeView.js';
 import searchView from './views/searchView.js';
@@ -17,6 +18,7 @@ init();
 
 function init() {
   recipeView.addHandler(controlRecipe);
+  recipeView.addServingsHandler(controlServings);
   searchView.addHandler(controlSearchResults);
   paginationView.addHandler(controlPagination);
 }
@@ -29,11 +31,14 @@ async function controlRecipe() {
     // 0. Show loading spinner
     recipeView.renderSpinner();
 
-    // 1. fetching recipe data
+    // 1. Fetch recipe data
     await loadRecipe(id);
 
-    // 2. Renderings recipe data
+    // 2. Render recipe data
     recipeView.render(state.recipe);
+
+    // 3. Mark the active search result
+    resultsView.update(getSearchResultsPage());
   } catch (err) {
     recipeView.renderError();
   }
@@ -66,4 +71,11 @@ function controlPagination(gotoPage) {
   resultsView.render(getSearchResultsPage(gotoPage));
   // 2. update pagination buttons
   paginationView.render(state.search);
+}
+
+function controlServings(newServings) {
+  // Update the recipe servings (in state)
+  updateServings(newServings);
+  // Rerender the view
+  recipeView.update(state.recipe);
 }

@@ -7,7 +7,39 @@ export default class View {
     this._data = data;
     if (!data || (Array.isArray(data) && data.length === 0))
       return this.renderError();
-    this._parentElement.innerHTML = this._generateMarkup();
+
+    const markup = this._generateMarkup();
+    this._parentElement.innerHTML = markup;
+  }
+
+  update(data) {
+    this._data = data;
+
+    // select all children of the parent element:
+    const currentElements = Array.from(
+      this._parentElement.querySelectorAll('*')
+    );
+
+    const newMarkup = this._generateMarkup(); // template string
+    const newDOM = document.createRange().createContextualFragment(newMarkup); // parse into a virtual DOM
+    const newElements = Array.from(newDOM.querySelectorAll('*'));
+		console.log('Updating dom')
+
+    newElements.forEach((newEl, i) => {
+      const currentEl = currentElements[i];
+      if (newEl.isEqualNode(currentEl)) return; // continue to the next iteration
+
+			// update text content:
+      if (newEl.firstChild?.nodeValue.trim() !== '') {
+        currentEl.textContent = newEl.textContent;
+      }
+			console.log(newEl.attributes);
+
+			// update attributes:
+      Array.from(newEl.attributes).forEach(attr =>
+        currentEl.setAttribute(attr.name, attr.value)
+      );
+    });
   }
 
   renderSpinner() {
