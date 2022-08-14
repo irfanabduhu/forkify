@@ -5,9 +5,9 @@ export default class View {
 
   render(data) {
     this._data = data;
-    const markup = this._generateMarkup();
-    this._parentElement.innerHTML = '';
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
+    if (!data || (Array.isArray(data) && data.length === 0))
+      return this.renderError();
+    this._parentElement.innerHTML = this._generateMarkup();
   }
 
   renderSpinner() {
@@ -21,7 +21,7 @@ export default class View {
     this._parentElement.innerHTML = markup;
   }
 
-  renderError(message) {
+  renderError(message = this._errorMessage) {
     const markup = `<div class="error">
             <div>
               <svg>

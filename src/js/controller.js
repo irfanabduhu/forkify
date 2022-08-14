@@ -1,18 +1,24 @@
 import 'core-js/stable'; // to polyfill ES6 stuff
-import { async } from 'regenerator-runtime';
-import 'regenerator-runtime/runtime'; // to polyfill async-await
-import { state, loadRecipe, loadSearchResults } from './model';
+import { async } from 'regenerator-runtime'; // to polyfill async-await
+import {
+  state,
+  loadRecipe,
+  loadSearchResults,
+  getSearchResultsPage,
+} from './model';
 import recipeView from './views/recipeView.js';
 import searchView from './views/searchView.js';
 import resultsView from './views/resultView.js';
+import paginationView from './views/paginationView.js';
 
 // https://forkify-api.herokuapp.com/v2
 
 init();
 
 function init() {
-  recipeView.addHandlerRender(controlRecipe);
-  searchView.addHandlerSearch(controlSearchResults);
+  recipeView.addHandler(controlRecipe);
+  searchView.addHandler(controlSearchResults);
+  paginationView.addHandler(controlPagination);
 }
 
 async function controlRecipe() {
@@ -29,9 +35,7 @@ async function controlRecipe() {
     // 2. Renderings recipe data
     recipeView.render(state.recipe);
   } catch (err) {
-    recipeView.renderError(
-      'We could not find that recipe. Please try another one!'
-    );
+    recipeView.renderError();
   }
 }
 
@@ -42,15 +46,24 @@ async function controlSearchResults() {
 
     // 1. Get search query
     const query = searchView.getQuery();
-    if (!query) return;
+    if (!query) throw new Error('No keyword has been provided!');
 
     // 2. Fetch search results
     await loadSearchResults(query);
 
     // 3. Render results
-    console.log(state.search.results);
-    resultsView.render(state.search.results);
+    resultsView.render(getSearchResultsPage());
+
+    // 4. Render initial pagination buttons
+    paginationView.render(state.search);
   } catch (err) {
-    console.error(err);
+    resultsView.renderError(err.message);
   }
+}
+
+function controlPagination(gotoPage) {
+  // 1. render new page
+  resultsView.render(getSearchResultsPage(gotoPage));
+  // 2. update pagination buttons
+  paginationView.render(state.search);
 }
