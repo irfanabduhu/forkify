@@ -12,6 +12,26 @@ export async function getJSON(url) {
   }
 }
 
+export async function sendJSON(url, uploadData) {
+	try {
+		const res = await Promise.race([
+			fetch(url, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(uploadData),
+			}),
+			timeout(TIMEOUT_SEC),
+		]);
+
+		const data = await res.json(); // Parse JSON
+		if (!res.ok) throw new Error(`${data.message}`); // Bad response: 4XX
+		return data;
+	} catch (err) {
+		throw err;
+	}
+}
+
+
 export function timeout(s) {
   return new Promise(function executor(_, reject) {
     setTimeout(function () {
