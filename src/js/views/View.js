@@ -3,13 +3,14 @@ import icons from 'url:../../img/icons.svg';
 export default class View {
   _data;
 
-  render(data) {
+  render(data, render = true) {
     this._data = data;
     if (!data || (Array.isArray(data) && data.length === 0))
       return this.renderError();
 
     const markup = this._generateMarkup();
-    this._parentElement.innerHTML = markup;
+    if (render) this._parentElement.innerHTML = markup;
+    else return markup;
   }
 
   update(data) {
@@ -23,19 +24,19 @@ export default class View {
     const newMarkup = this._generateMarkup(); // template string
     const newDOM = document.createRange().createContextualFragment(newMarkup); // parse into a virtual DOM
     const newElements = Array.from(newDOM.querySelectorAll('*'));
-		console.log('Updating dom')
+    console.log('Updating dom');
 
     newElements.forEach((newEl, i) => {
       const currentEl = currentElements[i];
       if (newEl.isEqualNode(currentEl)) return; // continue to the next iteration
 
-			// update text content:
+      // update text content:
       if (newEl.firstChild?.nodeValue.trim() !== '') {
         currentEl.textContent = newEl.textContent;
       }
-			console.log(newEl.attributes);
+      console.log(newEl.attributes);
 
-			// update attributes:
+      // update attributes:
       Array.from(newEl.attributes).forEach(attr =>
         currentEl.setAttribute(attr.name, attr.value)
       );

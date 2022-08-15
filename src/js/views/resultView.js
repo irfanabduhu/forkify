@@ -1,5 +1,5 @@
 import View from './View';
-import icons from 'url:../../img/icons.svg';
+import previewView from './previewView';
 
 class ResultsView extends View {
   _parentElement = document.querySelector('.results');
@@ -7,25 +7,7 @@ class ResultsView extends View {
   _message = '';
 
   _generateMarkup() {
-    return this._data.map(this.#generateMarkupPreview).join('');
-  }
-
-  #generateMarkupPreview(result) {
-    const id = window.location.hash.slice(1);
-    const activeClass = result.id === id ? 'preview__link--active' : '';
-    return `
-          <li class="preview">
-            <a class="preview__link ${activeClass}" href="#${result.id}">
-              <figure class="preview__fig">
-                <img src="${result.image_url}" alt="Test" />
-              </figure>
-              <div class="preview__data">
-                <h4 class="preview__title">${result.title}</h4>
-                <p class="preview__publisher">${result.publisher}</p>
-              </div>
-            </a>
-          </li>
-    `;
+    return this._data.map(recipe => previewView.render(recipe, false)).join('');
   }
 }
 
