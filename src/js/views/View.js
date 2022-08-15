@@ -24,7 +24,6 @@ export default class View {
     const newMarkup = this._generateMarkup(); // template string
     const newDOM = document.createRange().createContextualFragment(newMarkup); // parse into a virtual DOM
     const newElements = Array.from(newDOM.querySelectorAll('*'));
-    console.log('Updating dom');
 
     newElements.forEach((newEl, i) => {
       const currentEl = currentElements[i];
@@ -34,7 +33,6 @@ export default class View {
       if (newEl.firstChild?.nodeValue.trim() !== '') {
         currentEl.textContent = newEl.textContent;
       }
-      console.log(newEl.attributes);
 
       // update attributes:
       Array.from(newEl.attributes).forEach(attr =>

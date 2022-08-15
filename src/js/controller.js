@@ -1,5 +1,5 @@
 import 'core-js/stable'; // to polyfill ES6 stuff
-import { async } from 'regenerator-runtime'; // to polyfill async-await
+import { async } from 'regenerator-runtime'; // to polyfill async
 import {
   state,
   loadRecipe,
@@ -22,9 +22,10 @@ init();
 function init() {
   recipeView.addRecipeHandler(controlRecipe);
   recipeView.addServingsHandler(controlServings);
-  recipeView.addBookmarkHandler(controlBookmark);
+  recipeView.addBookmarkHandler(controlToggleBookmark);
   searchView.addHandler(controlSearchResults);
   paginationView.addHandler(controlPagination);
+  bookmarksView.addHandler(controlBookmarks);
 }
 
 async function controlRecipe() {
@@ -41,7 +42,7 @@ async function controlRecipe() {
     // 2. Render recipe data
     recipeView.render(state.recipe);
 
-    // 3. Mark the active search result
+    // 3. Mark the active recipe:
     resultsView.update(getSearchResultsPage());
     bookmarksView.update(state.bookmarks);
   } catch (err) {
@@ -85,14 +86,18 @@ function controlServings(newServings) {
   recipeView.update(state.recipe);
 }
 
-function controlBookmark() {
+function controlToggleBookmark() {
   // 1. add/remove a bookmark
   if (state.recipe.bookmarked) deleteBookmark(state.recipe.id);
   else addBookmark(state.recipe);
 
-  // 2. Update recipe view
+  // 2. Update bookmark button on the recipe view
   recipeView.update(state.recipe);
 
-  // 3. Render bookmarks
+  // 3. Render new bookmarks view
+  bookmarksView.render(state.bookmarks);
+}
+
+function controlBookmarks() {
   bookmarksView.render(state.bookmarks);
 }
